@@ -15,18 +15,32 @@ const RestaurantMenu = () => {
 
   if (resInfo === null) return <Shimmer />;
 
-  const { name, cuisines, costForTwoMessage } =
-    resInfo?.cards[0]?.card?.card?.info;
+  const restaurantInfo =
+    resInfo?.cards
+      ?.find((card) => card?.card?.card?.info)
+      ?.card?.card?.info ?? {};
 
-  const { itemCards } =
-    resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1]?.card?.card;
+  const regularCards =
+    resInfo?.cards?.find(
+      (card) => card?.groupedCard?.cardGroupMap?.REGULAR?.cards
+    )?.groupedCard?.cardGroupMap?.REGULAR?.cards ?? [];
 
-  const categories =
-    resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
-      (c) =>
-        c.card?.["card"]?.["@type"] ===
-        "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+  const { name, cuisines = [], costForTwoMessage } = restaurantInfo;
+
+  const categories = regularCards.filter(
+    (category) =>
+      category.card?.card?.["@type"] ===
+      "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+  );
+
+  if (!name || categories.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="font-bold text-xl">Restaurant menu is unavailable</h2>
+        <p className="mt-2">Please try again later.</p>
+      </div>
     );
+  }
   //console.log(categories);
 
   return (
